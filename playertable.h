@@ -1,22 +1,17 @@
 #ifndef PLAYERTABLE_H
 #define PLAYERTABLE_H
-#include "card.h"
+
 #include <iostream>
 #include <vector>
+#include "card.h";
 
-class PlayerTable
+class Playertable
 {
-    std::vector<Card>AngelDeck;
-    std::vector<Card>cardsInPTable;
+    std::vector<Card*>playertable;
 public:
-    PlayerTable();
-    void addCard(Card *);
-    void removeCard(Card*);
-    void resetHand();
-    void centerCards();
-    void checkPlayerCards();
-    Card* getRandomCard();
-    std::vector<Card>make_deck(std::map<std::string, sf::Texture>*);
+    Playertable();
+    void AddCard(Card*);
+    void CenterPosition(int, int, int, int);
 };
 
 #endif // PLAYERTABLE_H

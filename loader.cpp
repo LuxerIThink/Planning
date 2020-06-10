@@ -7,8 +7,13 @@ Loader::Loader()
 
 void Loader::loadDeck()
 {
-    this->add_path("s2S", "textures\\cards\\simple\\S\\2S.png");
-    this->add_path("s3S", "textures\\cards\\simple\\S\\3S.png");
+    this->add_path("NormalCards", "textures\\NormalCards.png");
+    this->add_path("InclinedCards", "textures\\InclinedCards.png");
+    this->add_path("LeftCard", "textures\\LeftCard.png");
+    this->add_path("NormalCard", "textures\\NormalCard.png");
+    this->add_path("InvertedCard", "textures\\InvertedCard.png");
+    this->add_path("RightCard", "textures\\RightCard.png");
+    this->add_path("LeftCard", "textures\\LeftCard.png");
 }
 
 void Loader::add_path(std::string name, std::string path)

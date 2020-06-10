@@ -1,6 +1,7 @@
 #include "loader.h"
 #include "card.h"
 #include "deck.h"
+#include "playertable.h"
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -8,13 +9,19 @@
 
 int main()
 {
+    std::srand(unsigned(std::time(0)));
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Planowanie");
     sf::Clock clock;
     sf::Time time;
+
     Loader temp_paths;
     temp_paths.loadDeck();
-    std::map<std::string, std::string>paths=temp_paths.get_all();
-    std::map<std::string, sf::Texture>*textures = new std::map<std::string, sf::Texture>;
+
+    Playertable playertable;
+
+    std::map<std::string, std::string>paths;
+    paths=temp_paths.get_all();
+    std::map<std::string, sf::Texture>textures;
     for(auto &i : paths)
     {
         sf::Texture temp_texture;
@@ -22,10 +29,17 @@ int main()
         {
             return 1;
         }
-        textures->emplace(i.first, temp_texture);
+        textures.emplace(i.first, temp_texture);
     }
     Deck newdeck;
-    std::vector<Card>deck=newdeck.generate_deck(textures);
+    std::vector<Card*>deck = newdeck.generate_deck(textures, 83, 38, "InclinedCards", true);
+    deck = newdeck.shuffle_deck(deck);
+    std::vector<Card*>tdeck = newdeck.generate_one_deck(textures, "InvertedCard", 13);
+    for(int i=0; i<13; i++)
+    {
+        playertable.AddCard(deck[i]);
+    }
+    playertable.CenterPosition(640, 640, 27, 0);
     while (window.isOpen())
     {
         clock.restart();
@@ -37,11 +51,14 @@ int main()
                 window.close();
             }
         }
-        window.clear(sf::Color::Blue);
-        window.draw(deck[0]);
+        window.clear(sf::Color::White);
+        for(int i=0; i<13; i++)
+        {
+            window.draw(*deck[i]);
+        }
+        window.draw(*tdeck[5]);
         window.display();
         time = clock.getElapsedTime();
     }
-    delete textures;
     return 0;
 }

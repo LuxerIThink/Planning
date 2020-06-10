@@ -21,13 +21,17 @@ class Card :public sf::Sprite
     bool is_playable=false;
 public:
     Card();
-    Card(short );
+    Card(short);
     Card(short, char, char);
-    Card(short, std::string, std::map<std::string, sf::Texture>*);
-    Card(short, char, char, std::string, std::map<std::string, sf::Texture>*);
+    Card(std::string, std::map<std::string, sf::Texture>&);
+    Card(short, std::string, std::map<std::string, sf::Texture>&);
+    Card(short, std::string, std::map<std::string, sf::Texture>&, int, int, int, int);
+    Card(short, char, char, std::string, std::map<std::string, sf::Texture>&);
+    Card(short, char, char, std::string, std::map<std::string, sf::Texture>&, int, int, int, int);
     void reload_val();
     void set_val(short &);
-    void load_texture(std::string, std::map<std::string, sf::Texture>*);
+    void load_textures(std::string, std::map<std::string, sf::Texture>&);
+    void load_texture(std::string, std::map<std::string, sf::Texture>&, int, int, int, int);
 };
 
 #endif // CARD_H
