@@ -23,12 +23,12 @@ void Table::RemoveCard(const int &i)
 
 void Table::CenterPosition()
 {
-    int xo=xcen-xc*table.size();
-    int yo=ycen-yc*table.size();
+    int xo=xcen-xc*table.size()/2;
+    int yo=ycen-yc*table.size()/2;
     for(auto &el : table)
     {
         el->setPosition(xo,yo);
-        xo=xo+xc*2;
+        xo=xo+xc;
         yo=yo+yc;
         //std::cerr << xo << std::endl;
     }

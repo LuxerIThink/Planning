@@ -57,4 +57,7 @@ void Card::load_texture(const std::string &txt_name, const std::map<std::string,
             this->setTextureRect({x,y,xx,yy});
         }
     }
+    float tempx=round(this->getLocalBounds().width/2);
+    float tempy=round(this->getLocalBounds().height/2);
+    this->setOrigin(tempx, tempy);
 }

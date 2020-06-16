@@ -43,16 +43,16 @@ int main()
     std::vector<std::unique_ptr<sf::Sprite>>rightCards = rightDeck.generate_one_deck(textures, "RightCard", 13);
     std::random_shuffle(normalCards.begin(), normalCards.end());
 
-    Table *playerTable = new Table(385, 535, 27, 0);
-    Table *leftTable = new Table(195, 530, -17, 36);
-    Table *invertedTable = new Table(855, 23, 27, 0);
-    Table *rightTable = new Table(960, 530, -17, 36);
-    Table *playerHand = new Table(640, 613, 27, 0);
+    Table *playerTable = new Table(410, 560, 53, 0);
+    Table *leftTable = new Table(210, 300, -36, 36);
+    Table *invertedTable = new Table(880, 23, 53, 0);
+    Table *rightTable = new Table(950, 300, -36, 36);
+    Table *playerHand = new Table(640, 660, 53, 0);
     Table *leftHand = new Table;
     Table *invertedHand = new Table;
     Table *rightHand = new Table;
-    Table *opTable = new Table(150, 360, 27, 0);
-    Table *mainTable  = new Table(600, 300, 27, 0);
+    Table *opTable = new Table(150, 360, 53, 0);
+    Table *mainTable  = new Table(640, 290, 53, 0);
 
     int card_amount=13;
 
@@ -153,5 +153,15 @@ int main()
         window.display();
         time = clock.getElapsedTime();
     }
+    delete [] playerTable;
+    delete [] leftTable;
+    delete [] invertedTable;
+    delete [] rightTable;
+    delete [] playerHand;
+    delete [] leftHand;
+    delete [] invertedHand;
+    delete [] rightHand;
+    delete [] opTable;
+    delete [] mainTable;
     return 0;
 }
