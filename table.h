@@ -1,21 +1,24 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include "card.h"
-
-#include "Card.h"
+#include <iostream>
+#include <vector>
+#include "card.h";
 
 class Table
 {
-    std::vector<Card>cardsInTable;
+    int xcen, ycen, xc, yc;
+    std::vector<Card*>table;
 public:
     Table();
-    void centerCards();
-    void addCard(Card);
-    void removeCard(Card);
-    void resetCards();
-    void compare();
-    void addTPoint();
+    Table(const int &, const int &, const int &, const int &);
+    void AddCard(Card*);
+    void RemoveCard(const int &i);
+    void RemoveAllCards();
+    void CenterPosition();
+    void SetCenterPosition(const int &, const int &, const int &, const int &);
+    Card* ShowCard(const int &);
+    int GetSize();
 };
 
 #endif // TABLE_H

@@ -13,10 +13,9 @@ void Loader::loadDeck()
     this->add_path("NormalCard", "textures\\NormalCard.png");
     this->add_path("InvertedCard", "textures\\InvertedCard.png");
     this->add_path("RightCard", "textures\\RightCard.png");
-    this->add_path("LeftCard", "textures\\LeftCard.png");
 }
 
-void Loader::add_path(std::string name, std::string path)
+void Loader::add_path(const std::string &name, const std::string &path)
 {
     paths.emplace(name, path);
 }

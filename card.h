@@ -20,18 +20,16 @@ class Card :public sf::Sprite
     bool can_be_selected=false;
     bool is_playable=false;
 public:
-    Card();
-    Card(short);
-    Card(short, char, char);
-    Card(std::string, std::map<std::string, sf::Texture>&);
-    Card(short, std::string, std::map<std::string, sf::Texture>&);
-    Card(short, std::string, std::map<std::string, sf::Texture>&, int, int, int, int);
-    Card(short, char, char, std::string, std::map<std::string, sf::Texture>&);
-    Card(short, char, char, std::string, std::map<std::string, sf::Texture>&, int, int, int, int);
+    Card(const short &,const char &,const char &);
+    Card(const std::string &, const std::map<std::string, sf::Texture> &);
+    Card(const short &, const std::string &, const std::map<std::string, sf::Texture> &, const int &, const int &, const int &, const int &);
+    Card(const short &, const char &, const char &, const std::string &, const std::map<std::string, sf::Texture> &, const int &, const int &, const int &, const int &);
+    char getName();
+    char getColor();
     void reload_val();
     void set_val(short &);
-    void load_textures(std::string, std::map<std::string, sf::Texture>&);
-    void load_texture(std::string, std::map<std::string, sf::Texture>&, int, int, int, int);
+    void load_textures(const std::string &, const std::map<std::string, sf::Texture> &);
+    void load_texture(const std::string &, const std::map<std::string, sf::Texture> &, const int &, const int &, const int &, const int &);
 };
 
 #endif // CARD_H

@@ -10,11 +10,8 @@ class Loader
 public:
     Loader();
     void loadDeck();
-    void add_path(std::string, std::string);
     int getsize();
-    std::string get_name(int);
-    std::string get_path(int);
-    std::string get_path(std::string);
+    void add_path(const std::string &,const std::string &);
     std::map<std::string, std::string>get_all();
 };
 

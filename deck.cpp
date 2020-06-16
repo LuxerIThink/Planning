@@ -1,21 +1,17 @@
 #include "deck.h"
 
-std::vector<Card*>Deck::shuffle_deck(std::vector<Card*> &temp)
-{
-    std::random_shuffle(temp.begin(), temp.end());
-    return temp;
-}
-
 Deck::Deck()
 {
 
 }
 
-std::vector<Card*>Deck::generate_deck(std::map<std::string, sf::Texture>&txt, int xval, int yval, std::string txt_name, bool count)
+std::vector<std::unique_ptr<sf::Sprite>> Deck::generate_deck(const std::map<std::string, sf::Texture>&txt, const int &xval, const int &yval, const std::string &txt_name, const bool &count)
 {
-    std::vector<Card*>temp;
+    char dnames[13] = {'2', '3', '4', '5', '6', '7', '8', '9', '0', 'J', 'Q', 'K', 'A'};
+    char dcolors[4] = {'s', 'h', 'd', 'c'};
     int x=0, y=0;
     short val;
+    std::vector<std::unique_ptr<sf::Sprite>>temp;
     if(count==true)
     {
         for(auto &c : dcolors)
@@ -23,8 +19,7 @@ std::vector<Card*>Deck::generate_deck(std::map<std::string, sf::Texture>&txt, in
             val=2;
             for(auto &n : dnames)
             {
-                Card *tempcard = new Card(val, n, c, txt_name, txt, x, y, xval, yval);
-                temp.emplace_back(tempcard);
+                temp.emplace_back(std::make_unique<Card>(val, n, c, txt_name, txt, x, y, xval, yval));
                 val++;
                 x+=xval;
             }
@@ -40,8 +35,7 @@ std::vector<Card*>Deck::generate_deck(std::map<std::string, sf::Texture>&txt, in
             val=0;
             for(auto &n : dnames)
             {
-                Card *tempcard = new Card(val, n, c, txt_name, txt, x, y, xval, yval);
-                temp.emplace_back(tempcard);
+                temp.emplace_back(std::make_unique<Card>(val, n, c, txt_name, txt, x, y, xval, yval));
                 x+=xval;
             }
             x=0;
@@ -51,13 +45,12 @@ std::vector<Card*>Deck::generate_deck(std::map<std::string, sf::Texture>&txt, in
     }
 }
 
-std::vector<Card *> Deck::generate_one_deck(std::map<std::string, sf::Texture> &txt, std::string txt_name, int amount)
+std::vector<std::unique_ptr<sf::Sprite>> Deck::generate_one_deck(const std::map<std::string, sf::Texture> &txt, const std::string &txt_name,const int &amount)
 {
-    std::vector<Card*>temp;
+    std::vector<std::unique_ptr<sf::Sprite>>temp;
     for(int i=0; i<amount; i++)
     {
-        Card *tempcard = new Card(txt_name, txt);
-        temp.emplace_back(tempcard);
+        temp.emplace_back(std::make_unique<Card>(txt_name, txt));
     }
     return temp;
 }
