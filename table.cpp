@@ -21,6 +21,13 @@ void Table::RemoveCard(const int &i)
     table.erase(table.begin()+i);
 }
 
+void Table::RemoveAllCards()
+{
+    //std::cerr << "Cleared" << std::endl;
+    table.clear();
+    //std::cerr << "Cleared" << std::endl;
+}
+
 void Table::CenterPosition()
 {
     int xo=xcen-xc*table.size()/2;
@@ -50,6 +57,76 @@ Card *Table::ShowCard(const int &x)
 int Table::GetSize()
 {
     return table.size();
+}
+
+int Table::Compare()
+{
+    table[0]->set_def_value();
+    for(int i=1; i<4; i++)
+    {
+        if(table[i]->getColor()!=table[0]->getColor())
+        {
+            table[i]->set_zero_val();
+        }
+        else
+        {
+            table[i]->set_def_value();
+        }
+    }
+    int z=0, tempvalue=0;
+    for(int i=0; i<4; i++)
+    {
+        //std::cout << table[i]->getValue() << std::endl;
+        if(table[i]->getValue() > tempvalue)
+        {
+            z=i;
+            tempvalue=table[i]->getValue();
+        }
+    }
+    return table[z]->getPlayer();
+}
+
+int Table::Compare(Card *opCard)
+{
+    table[0]->set_def_value();
+    for(int i=1; i<4; i++)
+    {
+        if(table[i]->getColor()==opCard->getColor())
+        {
+            table[i]->addValue(14);
+        }
+        else if(table[i]->getColor()==table[0]->getColor())
+        {
+            table[i]->set_zero_val();
+        }
+        else
+        {
+            table[i]->set_def_value();
+        }
+    }
+    int z=0, tempvalue=0;
+    for(int i=0; i<4; i++)
+    {
+        //std::cout << table[i]->getValue() << std::endl;
+        if(table[i]->getValue() > tempvalue)
+        {
+            z=i;
+            tempvalue=table[i]->getValue();
+        }
+    }
+    return table[z]->getPlayer();
+}
+
+bool Table::findColor(const char &color)
+{
+    for(auto &x : table)
+    {
+        if(x->getColor() == color)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 

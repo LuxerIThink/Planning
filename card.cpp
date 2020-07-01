@@ -36,6 +36,41 @@ char Card::getColor()
     return color;
 }
 
+void Card::set_val(short &val)
+{
+    actual_val=val;
+}
+
+void Card::set_zero_val()
+{
+    actual_val=0;
+}
+
+void Card::set_def_value()
+{
+    actual_val=default_val;
+}
+
+void Card::addValue(const int &val)
+{
+    actual_val=default_val+val;
+}
+
+int Card::getValue()
+{
+    return actual_val;
+}
+
+void Card::setPlayer(const int &val)
+{
+    player=val;
+}
+
+int Card::getPlayer()
+{
+    return player;
+}
+
 void Card::load_textures(const std::string &txt_name, const std::map<std::string, sf::Texture> &txt)
 {
     for(auto &i : txt)
@@ -61,3 +96,4 @@ void Card::load_texture(const std::string &txt_name, const std::map<std::string,
     float tempy=round(this->getLocalBounds().height/2);
     this->setOrigin(tempx, tempy);
 }
+

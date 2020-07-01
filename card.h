@@ -17,8 +17,7 @@ class Card :public sf::Sprite
     std::string texture_name;
     short default_val=0;
     short actual_val=0;
-    bool can_be_selected=false;
-    bool is_playable=false;
+    int player;
 public:
     Card(const short &,const char &,const char &);
     Card(const std::string &, const std::map<std::string, sf::Texture> &);
@@ -28,6 +27,12 @@ public:
     char getColor();
     void reload_val();
     void set_val(short &);
+    void set_zero_val();
+    void set_def_value();
+    void addValue(const int &);
+    int getValue();
+    void setPlayer(const int &);
+    int getPlayer();
     void load_textures(const std::string &, const std::map<std::string, sf::Texture> &);
     void load_texture(const std::string &, const std::map<std::string, sf::Texture> &, const int &, const int &, const int &, const int &);
 };
