@@ -61,16 +61,16 @@ int Table::GetSize()
 
 int Table::Compare()
 {
-    table[0]->set_def_value();
+    table[0]->setValueDefault();
     for(int i=1; i<4; i++)
     {
         if(table[i]->getColor()!=table[0]->getColor())
         {
-            table[i]->set_zero_val();
+            table[i]->setValueDefault();
         }
         else
         {
-            table[i]->set_def_value();
+            table[i]->setValueDefault();
         }
     }
     int z=0, tempvalue=0;
@@ -88,7 +88,7 @@ int Table::Compare()
 
 int Table::Compare(Card *opCard)
 {
-    table[0]->set_def_value();
+    table[0]->setValueDefault();
     for(int i=1; i<4; i++)
     {
         if(table[i]->getColor()==opCard->getColor())
@@ -97,11 +97,11 @@ int Table::Compare(Card *opCard)
         }
         else if(table[i]->getColor()==table[0]->getColor())
         {
-            table[i]->set_zero_val();
+            table[i]->setValueZero();
         }
         else
         {
-            table[i]->set_def_value();
+            table[i]->setValueDefault();
         }
     }
     int z=0, tempvalue=0;

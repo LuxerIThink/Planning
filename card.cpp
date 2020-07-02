@@ -9,13 +9,13 @@ Card::Card(const short &val, const char &n, const char &c)
 
 Card::Card(const std::string &txt_name, const std::map<std::string, sf::Texture> &txt)
 {
-    load_textures(txt_name, txt);
+    loadTextures(txt_name, txt);
 }
 
 Card::Card(const short &val, const std::string &txt_name, const std::map<std::string, sf::Texture> &txt, const int &x, const int &y, const int &xx, const int &yy)
 {
     default_val=val;
-    load_texture(txt_name, txt, x, y, xx, yy);
+    loadTexture(txt_name, txt, x, y, xx, yy);
 }
 
 Card::Card(const short &val, const char &n, const char &c, const std::string &txt_name, const std::map<std::string, sf::Texture> &txt, const int &x, const int &y, const int &xx, const int &yy)
@@ -23,7 +23,7 @@ Card::Card(const short &val, const char &n, const char &c, const std::string &tx
     default_val=val;
     name=n;
     color=c;
-    load_texture(txt_name, txt, x, y, xx, yy);
+    loadTexture(txt_name, txt, x, y, xx, yy);
 }
 
 char Card::getName()
@@ -36,53 +36,47 @@ char Card::getColor()
     return color;
 }
 
-void Card::set_val(short &val)
+void Card::setValue(short &val)
 {
     actual_val=val;
 }
 
-void Card::set_zero_val()
+void Card::setValueZero()
 {
     actual_val=0;
 }
 
-void Card::set_def_value()
+void Card::setValueDefault()
 {
     actual_val=default_val;
 }
 
-void Card::addValue(const int &val)
+void Card::addValue(const short &val)
 {
     actual_val=default_val+val;
 }
 
-int Card::getValue()
+short Card::getValue()
 {
     return actual_val;
 }
 
-void Card::setPlayer(const int &val)
+void Card::setPlayer(const short &val)
 {
     player=val;
 }
 
-int Card::getPlayer()
+short Card::getPlayer()
 {
     return player;
 }
 
-void Card::load_textures(const std::string &txt_name, const std::map<std::string, sf::Texture> &txt)
+void Card::loadTextures(const std::string &txt_name, const std::map<std::string, sf::Texture> &txt)
 {
-    for(auto &i : txt)
-    {
-        if(txt_name==i.first)
-        {
-            this->setTexture(i.second);
-        }
-    }
+    for(auto &i : txt){if(txt_name==i.first){this->setTexture(i.second);}}
 }
 
-void Card::load_texture(const std::string &txt_name, const std::map<std::string, sf::Texture> &txt, const int &x, const int &y, const int &xx, const int &yy)
+void Card::loadTexture(const std::string &txt_name, const std::map<std::string, sf::Texture> &txt, const int &x, const int &y, const int &xx, const int &yy)
 {
     for(auto &i : txt)
     {
