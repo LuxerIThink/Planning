@@ -1,6 +1,9 @@
 # Planning
 ![github-large](Template.png)
 
+# Film z prezentacji gry
+[Youtube](https://www.youtube.com/watch?v=DiF12aFJoVU&feature=youtu.be)
+
 ## Opis gry:
 
 **Wartości Kart (Rosnąco):**
