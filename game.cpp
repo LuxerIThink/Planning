@@ -281,25 +281,17 @@ bool Game::playerLoopChoose1()
     need_points[1]=(int)value;
     //std::cerr << (int)value << std::endl;
     if(choose==3 && need_points[3]+need_points[2]+need_points[1]+need_points[0]==card_amount)
-    {
-        int x=rand()%2;
-        if(x==0)
+        if(choose==3 && need_points[3]+need_points[2]+need_points[1]+need_points[0]==card_amount)
         {
-            if(need_points[1]>0)
+            if(need_points[3]-1<0)
             {
-                need_points[1]--;
+                need_points[3]++;
             }
-            need_points[1]++;
-        }
-        else
-        {
-            if(need_points[1]<card_amount)
+            else
             {
-                need_points[1]++;
+                need_points[3]--;
             }
-            need_points[1]--;
         }
-    }
     RefreshTurnPoints();
     player=2;
     choose++;
@@ -336,22 +328,13 @@ bool Game::playerLoopChoose2()
     need_points[2]=(int)value;
     if(choose==3 && need_points[3]+need_points[2]+need_points[1]+need_points[0]==card_amount)
     {
-        int x=rand()%2;
-        if(x==0)
+        if(need_points[3]-1<0)
         {
-            if(need_points[2]>0)
-            {
-                need_points[2]--;
-            }
-            need_points[2]++;
+            need_points[3]++;
         }
         else
         {
-            if(need_points[2]<card_amount)
-            {
-                need_points[2]++;
-            }
-            need_points[2]--;
+            need_points[3]--;
         }
     }
     RefreshTurnPoints();
@@ -390,21 +373,12 @@ bool Game::playerLoopChoose3()
     need_points[3]=(int)value;
     if(choose==3 && need_points[3]+need_points[2]+need_points[1]+need_points[0]==card_amount)
     {
-        int x=rand()%2;
-        if(x==0)
+        if(need_points[3]-1<0)
         {
-            if(need_points[3]>0)
-            {
-                need_points[3]--;
-            }
             need_points[3]++;
         }
         else
         {
-            if(need_points[3]<card_amount)
-            {
-                need_points[3]++;
-            }
             need_points[3]--;
         }
     }
