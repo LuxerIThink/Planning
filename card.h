@@ -27,6 +27,7 @@ public:
     char getName();
     char getColor();
     short getValue();
+    short getDefaultValue();
     short getPlayer();
     void setValue(short &);
     void setValueZero();
@@ -34,6 +35,7 @@ public:
     void setPlayer(const short &);
     void reloadValue();
     void addValue(const short &);
+    void setCenterPosition();
     void loadTextures(const std::string &, const std::map<std::string, sf::Texture> &);
     void loadTexture(const std::string &, const std::map<std::string, sf::Texture> &, const int &, const int &, const int &, const int &);
 };

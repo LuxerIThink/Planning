@@ -66,7 +66,7 @@ int Table::Compare()
     {
         if(table[i]->getColor()!=table[0]->getColor())
         {
-            table[i]->setValueDefault();
+            table[i]->setValueZero();
         }
         else
         {
@@ -95,7 +95,7 @@ int Table::Compare(Card *opCard)
         {
             table[i]->addValue(14);
         }
-        else if(table[i]->getColor()==table[0]->getColor())
+        else if(table[i]->getColor()!=table[0]->getColor())
         {
             table[i]->setValueZero();
         }

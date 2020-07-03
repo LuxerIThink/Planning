@@ -5,6 +5,8 @@ Game::Game()
     setStartOptions();
     loadTextures();
     loadFonts();
+    setTexts();
+    setShapes();
     setTablesPosition();
     addObjectsToDraw();
     mainCycle();
@@ -12,12 +14,12 @@ Game::Game()
 
 Game::~Game()
 {
+
 }
 
 void Game::render()
 {
     window.clear(sf::Color::White);
-
     for(auto &j : drawable_objects)
     {
         for(int i=0; i<j->GetSize(); i++)
@@ -25,6 +27,26 @@ void Game::render()
             window.draw(*j->ShowCard(i));
         }
     }
+    for(auto &j : shapes){window.draw(j.second);}
+    for(auto &j : texts){window.draw(j.second);}
+    if(render_choose==true)
+    {
+        for(auto &j : choose_shapes){window.draw(j.second);}
+        for(auto &j : choose_texts){window.draw(j.second);}
+    }
+    if(op_card==true)
+    {
+        window.draw(diamonds[4]);
+    }
+    for(int i=0; i<4; i++)
+    {
+        if(main_table.GetSize()>=i+1)
+        {
+            window.draw(diamonds[i]);
+        }
+    }
+
+    //mainLoopTest();
     window.display();
 }
 
@@ -50,24 +72,20 @@ void Game::mainLoop()
         if(mainLoopStep2()==true){break;}
     case 3:
         if(mainLoopStep3()==true){break;}
+    case 4:
+        if(mainLoopStep4()==true){break;}
     }
 }
 
 bool Game::mainLoopStep0()
 {
     if(op_table.GetSize()>0){op_table.RemoveAllCards();}
-    std::random_shuffle(normal_cards.begin(), normal_cards.end());
-    op_table.AddCard(dynamic_cast<Card*>(normal_cards[normal_cards.size()-1].get()));
-    random_player++;
-    if(random_player>=3){random_player=0;}
-    player=random_player;
     step=1;
     return true;
 }
 
 bool Game::mainLoopStep1()
 {
-    std::random_shuffle(normal_cards.begin(), normal_cards.end());
     for(int i=0; i<card_amount; i++)
     {
         left_hand.AddCard(dynamic_cast<Card*>(normal_cards[i].get()));
@@ -85,63 +103,330 @@ bool Game::mainLoopStep1()
                 player_table.AddCard(dynamic_cast<Card*>(inclined_cards[j].get()));
             }
         }
+        if(op_card==true)
+        {
+            op_table.AddCard(dynamic_cast<Card*>(normal_cards[normal_cards.size()-1].get()));
+        }
     }
     step=2;
+    render_choose=true;
     return true;
 }
 
 bool Game::mainLoopStep2()
 {
-    if(playerLoopStart()==true){return true;}
+    if(choose>=4){step=3; clock.restart(); return true;}
     switch(player)
     {
         case 0:
-            if(playerLoopPlayer0()==true){break;}
+            if(playerLoopChoose0()==true){break;}
         case 1:
-            if(playerLoopPlayer1()==true){break;}
+            if(playerLoopChoose1()==true){break;}
         case 2:
-            if(playerLoopPlayer2()==true){break;}
+            if(playerLoopChoose2()==true){break;}
         case 3:
-            if(playerLoopPlayer3()==true){break;}
+            if(playerLoopChoose3()==true){break;}
     }
     return true;
 }
 
 bool Game::mainLoopStep3()
 {
+    time = clock.getElapsedTime();
+    if(playerLoopStart()==true){clock.restart(); return true;}
+    switch(player)
+    {
+        case 0:
+            if(playerLoopPlayer0()==true){break;}
+        case 1:
+            if(time.asMilliseconds()>=600){if(playerLoopPlayer1()==true){break;}}
+        case 2:
+            if(time.asMilliseconds()>=600){if(playerLoopPlayer2()==true){break;}}
+        case 3:
+            if(time.asMilliseconds()>=600){if(playerLoopPlayer3()==true){break;}}
+    }
+    return true;
+}
+
+bool Game::mainLoopStep4()
+{
+    time = clock.getElapsedTime();
+    if(time.asMilliseconds()>=2000)
+    {
     int what_player;
     if(op_table.GetSize()>0){what_player=main_table.Compare(op_table.ShowCard(0));}
     else{what_player=main_table.Compare();}
-    p[what_player]++;
+    turn_points[what_player]++;
     for(int i=0; i<main_table.GetSize(); i++){dynamic_cast<Card*>(main_table.ShowCard(0))->setValueDefault();}
     main_table.RemoveAllCards();
-    std::cerr << p[0] << p[1] << p[2] << p[3] << std::endl;
     player=what_player;
+    //std::cerr << turn_points[0] << turn_points[1] << turn_points[2] << turn_points[3] << std::endl;
     if(player_hand.GetSize()==0 && left_hand.GetSize()==0 && right_hand.GetSize()==0 &&
-            inverted_hand.GetSize()==0 &&
-            main_table.GetSize()==0)
+            inverted_hand.GetSize()==0 && main_table.GetSize()==0)
     {
+        for(int i=0; i<4; i++)
+        {
+            if(turn_points[i]==need_points[i])
+            {
+                points[i]+=turn_points[i]+10;
+            }
+        }
         if(one_card>=3){return 1;}
         else if(card_amount>1){card_amount--;}
         else{one_card++;}
+        RefreshPoints();
+        for(auto &i : turn_points){i=0;}
+        for(auto &i : need_points){i=0;}
+        left_click=false;
+        RefreshTurnPoints();
+        RefreshCounter();
+        choose=0;
+        random_player++;
+        if(random_player>=3){random_player=0;}
+        player=random_player;
+        op_card=true;
+        std::random_shuffle(normal_cards.begin(), normal_cards.end());
         step=0;
     }
-    else{step=2;}
+    else{RefreshTurnPoints(); step=3;}
+    return true;
+    }
+}
+
+bool Game::playerLoopChoose0()
+{
+    if (left_click==true)
+    {
+        left_click=false;
+        sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
+        for(auto &el : choose_shapes)
+        {
+            if(mouse_pos.x >= el.second.getGlobalBounds().left &&
+               mouse_pos.x <= el.second.getGlobalBounds().left+el.second.getGlobalBounds().width &&
+               mouse_pos.y >= el.second.getGlobalBounds().top &&
+               mouse_pos.y <= el.second.getGlobalBounds().top+el.second.getGlobalBounds().height)
+            {
+                if(el.first=="minus")
+                {
+                    if(need_points[0]>0)
+                    {
+                        need_points[0]-=1;
+                        RefreshCounter();
+                        //std::cerr << need_points[0] << std::endl;
+                        //left_click=false;
+                        return true;
+                    }
+
+                }
+                if(el.first=="plus")
+                {
+                    if(need_points[0]<card_amount)
+                    {
+                        need_points[0]+=1;
+                        RefreshCounter();
+                        //std::cerr << need_points[0] << std::endl;
+                        //left_click=false;
+                        return true;
+                    }
+                }
+                if(el.first=="ok")
+                {
+                    if(choose==3 && need_points[3]+need_points[2]+need_points[1]+need_points[0]==card_amount)
+                    {
+
+                    }
+                    else
+                    {
+                        RefreshTurnPoints();
+                        render_choose=false;
+                        left_click=false;
+                        choose++;
+                        player=1;
+                        return true;
+                    }
+                }
+            }
+        }
+    }
     return true;
 }
+
+bool Game::playerLoopChoose1()
+{
+    float value;
+    for(int i=0; i<left_hand.GetSize(); i++)
+    {
+        if(op_table.GetSize()==1)
+        {
+            if(dynamic_cast<Card*>(left_hand.ShowCard(i))->getColor()==dynamic_cast<Card*>(op_table.ShowCard(i))->getColor())
+            {
+                value+=1;
+            }
+            else
+            {
+                value+=dynamic_cast<Card*>(left_hand.ShowCard(i))->getDefaultValue()/14;
+            }
+        }
+        else
+        {
+            value+=dynamic_cast<Card*>(left_hand.ShowCard(i))->getDefaultValue()/14;
+        }
+    }
+    value=round(value);
+    value+=rand()%((int)((card_amount-need_points[0]-need_points[2]-need_points[3]-(int)value)/(4-choose)));
+    if(value>card_amount)
+    {
+       value=card_amount-1;
+    }
+    need_points[1]=(int)value;
+    //std::cerr << (int)value << std::endl;
+    if(choose==3 && need_points[3]+need_points[2]+need_points[1]+need_points[0]==card_amount)
+    {
+        int x=rand()%2;
+        if(x==0)
+        {
+            if(need_points[1]>0)
+            {
+                need_points[1]--;
+            }
+            need_points[1]++;
+        }
+        else
+        {
+            if(need_points[1]<card_amount)
+            {
+                need_points[1]++;
+            }
+            need_points[1]--;
+        }
+    }
+    RefreshTurnPoints();
+    player=2;
+    choose++;
+    return true;
+}
+
+bool Game::playerLoopChoose2()
+{
+    float value;
+    for(int i=0; i<inverted_hand.GetSize(); i++)
+    {
+        if(op_table.GetSize()==1)
+        {
+            if(dynamic_cast<Card*>(inverted_hand.ShowCard(i))->getColor()==dynamic_cast<Card*>(op_table.ShowCard(i))->getColor())
+            {
+                value+=1;
+            }
+            else
+            {
+                value+=dynamic_cast<Card*>(inverted_hand.ShowCard(i))->getDefaultValue()/14;
+            }
+        }
+        else
+        {
+            value+=dynamic_cast<Card*>(inverted_hand.ShowCard(i))->getDefaultValue()/14;
+        }
+    }
+    value=round(value);
+    value+=rand()%((int)((card_amount-need_points[0]-need_points[1]-need_points[3]-(int)value)/(4-choose)));
+    if(value>card_amount)
+    {
+       value=card_amount-1;
+    }
+    need_points[2]=(int)value;
+    if(choose==3 && need_points[3]+need_points[2]+need_points[1]+need_points[0]==card_amount)
+    {
+        int x=rand()%2;
+        if(x==0)
+        {
+            if(need_points[2]>0)
+            {
+                need_points[2]--;
+            }
+            need_points[2]++;
+        }
+        else
+        {
+            if(need_points[2]<card_amount)
+            {
+                need_points[2]++;
+            }
+            need_points[2]--;
+        }
+    }
+    RefreshTurnPoints();
+    player=3;
+    choose++;
+    return true;
+}
+
+bool Game::playerLoopChoose3()
+{
+    float value;
+    for(int i=0; i<right_hand.GetSize(); i++)
+    {
+        if(op_table.GetSize()==1)
+        {
+            if(dynamic_cast<Card*>(right_hand.ShowCard(i))->getColor()==dynamic_cast<Card*>(op_table.ShowCard(i))->getColor())
+            {
+                value+=1;
+            }
+            else
+            {
+                value+=dynamic_cast<Card*>(right_hand.ShowCard(i))->getDefaultValue()/14;
+            }
+        }
+        else
+        {
+            value+=dynamic_cast<Card*>(right_hand.ShowCard(i))->getDefaultValue()/14;
+        }
+    }
+    value=round(value);
+    value+=rand()%((int)((card_amount-need_points[0]-need_points[1]-need_points[2]-(int)value)/(4-choose)));
+    if(value>card_amount)
+    {
+       value=card_amount-1;
+    }
+    need_points[3]=(int)value;
+    if(choose==3 && need_points[3]+need_points[2]+need_points[1]+need_points[0]==card_amount)
+    {
+        int x=rand()%2;
+        if(x==0)
+        {
+            if(need_points[3]>0)
+            {
+                need_points[3]--;
+            }
+            need_points[3]++;
+        }
+        else
+        {
+            if(need_points[3]<card_amount)
+            {
+                need_points[3]++;
+            }
+            need_points[3]--;
+        }
+    }
+    RefreshTurnPoints();
+    player=0;
+    choose++;
+    return true;
+}
+
 
 bool Game::playerLoopStart()
 {
     if(main_table.GetSize()>=4)
     {
-        step=3;
+        step=4;
         return true;
     }
 }
 
 bool Game::playerLoopPlayer0()
 {
-    if (event.type == sf::Event::MouseButtonPressed)
+    if (left_click==true)
     {
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
         for(int i=0; i<player_hand.GetSize(); i++)
@@ -161,6 +446,11 @@ bool Game::playerLoopPlayer0()
                     player_table.RemoveCard(i);
                     player_table.CenterPosition();
                     player=1;
+                    left_click=false;
+                    diamonds[main_table.GetSize()-1].setFillColor(sf::Color(10, 123, 255));
+                    DiamondsCenterPosition(667, 238, 53, 0, main_table.GetSize());
+                    clock.restart();
+                    return true;
                 }
             }
         }
@@ -186,6 +476,9 @@ bool Game::playerLoopPlayer1()
     left_table.RemoveCard(z);
     left_table.CenterPosition();
     player=2;
+    diamonds[main_table.GetSize()-1].setFillColor(sf::Color(226, 0, 0));
+    DiamondsCenterPosition(667, 238, 53, 0, main_table.GetSize());
+    clock.restart();
     return true;
 }
 
@@ -196,10 +489,7 @@ bool Game::playerLoopPlayer2()
     {
         z = rand()%inverted_table.GetSize();
         if((main_table.GetSize()>0 && (dynamic_cast<Card*>(inverted_table.ShowCard(z))->getColor()==dynamic_cast<Card*>(main_table.ShowCard(0))->getColor() ||
-            inverted_table.findColor(dynamic_cast<Card*>(main_table.ShowCard(0))->getColor())==false)) || main_table.GetSize()==0)
-        {
-            break;
-        }
+            inverted_table.findColor(dynamic_cast<Card*>(main_table.ShowCard(0))->getColor())==false)) || main_table.GetSize()==0){break;}
     }
     main_table.AddCard(inverted_hand.ShowCard(z));
     dynamic_cast<Card*>(main_table.ShowCard(main_table.GetSize()-1))->setPlayer(2);
@@ -207,6 +497,9 @@ bool Game::playerLoopPlayer2()
     inverted_table.RemoveCard(z);
     inverted_table.CenterPosition();
     player=3;
+    diamonds[main_table.GetSize()-1].setFillColor(sf::Color(84, 216, 0));
+    DiamondsCenterPosition(667, 238, 53, 0, main_table.GetSize());
+    clock.restart();
     return true;
 }
 
@@ -217,10 +510,7 @@ bool Game::playerLoopPlayer3()
     {
         z = rand()%right_table.GetSize();
         if((main_table.GetSize()>0 && (dynamic_cast<Card*>(right_table.ShowCard(z))->getColor()==dynamic_cast<Card*>(main_table.ShowCard(0))->getColor() ||
-           right_table.findColor(dynamic_cast<Card*>(main_table.ShowCard(0))->getColor())==false)) || main_table.GetSize()==0)
-        {
-            break;
-        }
+           right_table.findColor(dynamic_cast<Card*>(main_table.ShowCard(0))->getColor())==false)) || main_table.GetSize()==0){break;}
     }
     main_table.AddCard(right_hand.ShowCard(z));
     dynamic_cast<Card*>(main_table.ShowCard(main_table.GetSize()-1))->setPlayer(3);
@@ -228,6 +518,9 @@ bool Game::playerLoopPlayer3()
     right_table.RemoveCard(z);
     right_table.CenterPosition();
     player=0;
+    diamonds[main_table.GetSize()-1].setFillColor(sf::Color(255, 215, 49));
+    DiamondsCenterPosition(667, 238, 53, 0, main_table.GetSize());
+    clock.restart();
     return true;
 }
 
@@ -239,7 +532,12 @@ bool Game::playerLoopPlayerEnd()
 
 void Game::close()
 {
-    while (window.pollEvent(event)){if (event.type == sf::Event::Closed){window.close();}}
+    while (window.pollEvent(event))
+    {
+        if (event.type == sf::Event::Closed){window.close();}
+        if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left){left_click=true;}
+        if (event.type == sf::Event::MouseButtonReleased){left_click=false;}
+    }
 }
 
 void Game::loadTextures()
@@ -280,13 +578,14 @@ void Game::loadFonts()
 
 void Game::setTablesPosition()
 {
-    player_table.SetCenterPosition(410, 560, 53, 0);
-    left_table.SetCenterPosition(210, 300, -36, 36);
-    inverted_table.SetCenterPosition(880, 23, 53, 0);
-    right_table.SetCenterPosition(950, 300, -36, 36);
-    player_hand.SetCenterPosition(640, 660, 53, 0);
-    op_table.SetCenterPosition(150, 260, 53, 0);
-    main_table.SetCenterPosition(640, 290, 53, 0);
+    std::random_shuffle(normal_cards.begin(), normal_cards.end());
+    player_table.SetCenterPosition(408, 558, 51, 0);
+    left_table.SetCenterPosition(210, 298, -36, 36);
+    inverted_table.SetCenterPosition(876, 23, 51, 0);
+    right_table.SetCenterPosition(942, 300, -36, 36);
+    player_hand.SetCenterPosition(667, 650, 51, 0);
+    op_table.SetCenterPosition(155, 210, 0, 0);
+    main_table.SetCenterPosition(667, 300, 53, 0);
 }
 
 void Game::addObjectsToDraw()
@@ -306,10 +605,149 @@ void Game::setStartOptions()
     std::srand(unsigned(std::time(0)));
     random_player=rand()%4;
     player=random_player;
-    for(auto &i : p){i=0;}
+    for(auto &i : points){i=0;}
+    for(auto &i : turn_points){i=0;}
+    for(auto &i : need_points){i=0;}
     card_amount=13;
     step=1;
     one_card=0;
+    choose=0;
+    op_card=false;
+}
+
+void Game::setTexts()
+{
+    choose_texts.emplace("take", generateText("take", "Fyodor", {0,70,182}, 78, 640, 230));
+    choose_texts.emplace("minus", generateText("-", "Fyodor", {255,255,255}, 58, 588, 275, 2));
+    choose_texts.emplace("counter", generateText("0", "Fyodor", {255,255,255}, 40, 641, 296));
+    choose_texts.emplace("plus1", generateText("-", "Fyodor", {255,255,255}, 55, 692, 276, 2));
+    choose_texts.emplace("plus2", generateText("-", "Fyodor", {255,255,255}, 55, 727, 307, 2, 1, 90));
+    choose_texts.emplace("ok", generateText("ok", "Fyodor", {255,255,255}, 40, 641, 349));
+    texts.emplace("points", generateText("points", "Fyodor", {0,70,182}, 73, 156, 25));
+    texts.emplace("points p0", generateText("0", "Fyodor", {255,255,255}, 29, 75, 95));
+    texts.emplace("points p1", generateText("0", "Fyodor", {255,255,255}, 29, 128, 95));
+    texts.emplace("points p2", generateText("0", "Fyodor", {255,255,255}, 29, 182, 95));
+    texts.emplace("points p3", generateText("0", "Fyodor", {255,255,255}, 29, 236, 95));
+    texts.emplace("turn points", generateText("turn points", "Fyodor", {0,70,182}, 40, 1121, 498));
+    texts.emplace("turn points p0", generateText("0/0", "Fyodor", {255,255,255}, 20, 1039, 549));
+    texts.emplace("turn points p1", generateText("0/0", "Fyodor", {255,255,255}, 20, 1095, 549));
+    texts.emplace("turn points p2", generateText("0/0", "Fyodor", {255,255,255}, 20, 1149, 549));
+    texts.emplace("turn points p3", generateText("0/0", "Fyodor", {255,255,255}, 20, 1205, 549));
+}
+
+void Game::setShapes()
+{
+    shapes.emplace("points p1", generateRectrangle(48, 48, 75, 104, {10, 123, 255}));
+    shapes.emplace("points p2", generateRectrangle(48, 48, 129, 104, {226, 0, 0}));
+    shapes.emplace("points p3", generateRectrangle(48, 48, 183, 104, {84, 216, 0}));
+    shapes.emplace("points p4", generateRectrangle(48, 48, 237, 104, {255, 215, 49}));
+    shapes.emplace("turn points p1", generateRectrangle(48, 48, 1040, 555, {10, 123, 255}));
+    shapes.emplace("turn points p2", generateRectrangle(48, 48, 1095, 555, {226, 0, 0}));
+    shapes.emplace("turn points p3", generateRectrangle(48, 48, 1150, 555, {84, 216, 0}));
+    shapes.emplace("turn points p4", generateRectrangle(48, 48, 1205, 555, {255, 215, 49}));
+    choose_shapes.emplace("minus", generateRectrangle(48, 48, 590, 310, {0, 70, 182}));
+    choose_shapes.emplace("counter", generateRectrangle(48, 48, 642, 310, {0, 70, 182}));
+    choose_shapes.emplace("plus", generateRectrangle(48, 48, 694, 310, {0, 70, 182}));
+    choose_shapes.emplace("ok", generateRectrangle(152, 48, 642, 362, {0, 70, 182}));
+    shapes.emplace("line p2", generateRectrangle(660, 4, 305, 300, {226, 0, 0}, -45));
+    shapes.emplace("line p4", generateRectrangle(660, 4, 966, 300, {255, 215, 49}, -45));
+    shapes.emplace("line p1", generateRectrangle(660, 4, 404, 532, {10, 123, 255}));
+    shapes.emplace("line p3", generateRectrangle(660, 4, 868, 68, {84, 216, 0}));
+    shapes.emplace("points p1", generateRectrangle(48, 48, 75, 104, {10, 123, 255}));
+    shapes.emplace("points p2", generateRectrangle(48, 48, 129, 104, {226, 0, 0}));
+    shapes.emplace("points p3", generateRectrangle(48, 48, 183, 104, {84, 216, 0}));
+    shapes.emplace("points p4", generateRectrangle(48, 48, 237, 104, {255, 215, 49}));
+
+    diamonds.emplace_back(generateRectrangle(14, 14, 580, 250, {255, 255, 255}, 45));
+    diamonds.emplace_back(generateRectrangle(14, 14, 620, 250, {255, 255, 255}, 45));
+    diamonds.emplace_back(generateRectrangle(14, 14, 660, 250, {255, 255, 255}, 45));
+    diamonds.emplace_back(generateRectrangle(14, 14, 700, 250, {255, 255, 255}, 45));
+    diamonds.emplace_back(generateRectrangle(14, 14, 155, 150, {0, 0, 0}, 45));
+    DiamondsCenterPosition(667, 238, 53, 0, 1);
+}
+
+void Game::RefreshCounter()
+{
+    for(auto &el : choose_texts)
+    {
+        if(el.first=="counter")
+        {
+            el.second.setString(std::to_string(need_points[0]));
+            el.second.setOrigin(el.second.getLocalBounds().width/2, el.second.getLocalBounds().height/2);
+            return;
+        }
+    }
+}
+
+void Game::RefreshTurnPoints()
+{
+    for(int i=0; i<4; i++)
+    {
+        for(auto &el : texts)
+        {
+            std::string name="turn points p"+std::to_string(i);
+            if(el.first==name)
+            {
+                el.second.setString(std::to_string(turn_points[i])+"/"+std::to_string(need_points[i]));
+                el.second.setOrigin(el.second.getLocalBounds().width/2, el.second.getLocalBounds().height/2);
+                break;
+            }
+        }
+    }
+}
+
+void Game::RefreshPoints()
+{
+    for(int i=0; i<4; i++)
+    {
+        for(auto &el : texts)
+        {
+            std::string name="points p"+std::to_string(i);
+            if(el.first==name)
+            {
+                el.second.setString(std::to_string(points[i]));
+                el.second.setOrigin(el.second.getLocalBounds().width/2, el.second.getLocalBounds().height/2);
+                break;
+            }
+        }
+    }
+}
+
+void Game::DiamondsCenterPosition(const int &xcen, const int &ycen, const int &xc, const int &yc, const int &xd)
+{
+    int xo=xcen-xc*(xd)/2;
+    int yo=ycen-yc*(xd)/2;
+    for(int i=0; i<xd; i++)
+    {
+        diamonds[i].setPosition(xo,yo);
+        xo=xo+xc;
+        yo=yo+yc;
+    }
+}
+
+sf::Text Game::generateText(const std::string &text, const std::string &font, const sf::Color &color, const int &size, const int &posx, const int &posy, const float &scalex, const float &scaley, const float &rotation)
+{
+    sf::Text temp;
+    for(auto &i : fonts){if(i.first==font){temp.setFont(i.second);}}
+    temp.setString(text);
+    temp.setFillColor(color);
+    temp.setCharacterSize(size);
+    temp.setOrigin(temp.getLocalBounds().width/2, temp.getLocalBounds().height/2);
+    temp.setPosition(posx,posy);
+    temp.setScale(scalex, scaley);
+    temp.setRotation(rotation);
+    return temp;
+}
+
+sf::RectangleShape Game::generateRectrangle(const int &sizex, const int &sizey, const int &posx, const int &posy, const sf::Color &color, const float &rotation)
+{
+    sf::RectangleShape temp;
+    temp.setSize(sf::Vector2f(sizex, sizey));
+    temp.setOrigin(temp.getLocalBounds().width/2, temp.getLocalBounds().height/2);
+    temp.setPosition(posx,posy);
+    temp.setFillColor(color);
+    temp.setRotation(rotation);
+    return temp;
 }
 
 std::vector<std::unique_ptr<sf::Sprite>> Game::generateDeckOne(const std::map<std::string, sf::Texture> &txt, const std::string &txt_name,const int &amount)

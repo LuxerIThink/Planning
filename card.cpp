@@ -5,17 +5,20 @@ Card::Card(const short &val, const char &n, const char &c)
     default_val=val;
     name=n;
     color=c;
+    //setCenterPosition();
 }
 
 Card::Card(const std::string &txt_name, const std::map<std::string, sf::Texture> &txt)
 {
     loadTextures(txt_name, txt);
+    //setCenterPosition();
 }
 
 Card::Card(const short &val, const std::string &txt_name, const std::map<std::string, sf::Texture> &txt, const int &x, const int &y, const int &xx, const int &yy)
 {
     default_val=val;
     loadTexture(txt_name, txt, x, y, xx, yy);
+    //setCenterPosition();
 }
 
 Card::Card(const short &val, const char &n, const char &c, const std::string &txt_name, const std::map<std::string, sf::Texture> &txt, const int &x, const int &y, const int &xx, const int &yy)
@@ -24,6 +27,7 @@ Card::Card(const short &val, const char &n, const char &c, const std::string &tx
     name=n;
     color=c;
     loadTexture(txt_name, txt, x, y, xx, yy);
+    //setCenterPosition();
 }
 
 char Card::getName()
@@ -56,9 +60,19 @@ void Card::addValue(const short &val)
     actual_val=default_val+val;
 }
 
+void Card::setCenterPosition()
+{
+    setOrigin(getLocalBounds().width/2, getLocalBounds().height/2);
+}
+
 short Card::getValue()
 {
     return actual_val;
+}
+
+short Card::getDefaultValue()
+{
+    return default_val;
 }
 
 void Card::setPlayer(const short &val)
